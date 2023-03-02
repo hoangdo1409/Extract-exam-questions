@@ -2,6 +2,8 @@ import re
 import openai
 import csv
 import pandas as pd
+import docx2txt
+import docx
 from io import StringIO
 from pdfminer.converter import TextConverter
 from pdfminer.pdfinterp import PDFPageInterpreter
@@ -9,6 +11,13 @@ from pdfminer.pdfinterp import PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 # Đầu vào là đề thi hóa với định dạng pdf
 # Trích xuất dữ liệu từ file pdf (pdfminer) và đưa vào file txt
+
+def read_docx(filename):
+    doc = docx.Document(filename)
+    fullText = []
+    for para in doc.paragraphs:
+        fullText.append(para.text)
+    return '\n'.join(fullText)
 
 def read_pdf(pdf_path):
     output_string = StringIO()
@@ -24,8 +33,8 @@ def read_pdf(pdf_path):
     return text
 
 # Lấy ra câu hỏi và đáp án từ dữ liệu đã trích xuất
-def get_question_options(text: str) -> list[str]:
-    pattern = r"(Câu \d+:.+?)(?=(Câu \d+:)|$)"
+def get_question_options(text: str, pattern) -> list[str]:
+    # pattern = r"(Câu \d+:.+?)(?=(Câu \d+:)|$)"
     matches = re.findall(pattern, text, re.DOTALL)
 
     list_quest_op = []
@@ -36,14 +45,14 @@ def get_question_options(text: str) -> list[str]:
     return list_quest_op
 
 # Chuyển câu hỏi và đáp án về dạng csv: quest| A. ans | B. ans | C. ans | D. ans
-def format_text(format: str, text: str, api_key, max_tokens=3473) -> str:
+def format_text(format: str, text: str, api_key, max_tokens=3200) -> str:
     openai.api_key = (api_key)
     prompt = text + format
 
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=prompt,
-        temperature=0.02,
+        temperature=0,
         max_tokens=max_tokens,
         top_p=1.0,
         frequency_penalty=0.0,
