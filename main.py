@@ -15,7 +15,12 @@ Nội dung câu hỏi|Answer A| Answer B|Answer C|Answer D"""
 
     content_extract = read_pdf('data1.pdf')
     quest_option = get_question_options(content_extract)
+    # sep = "\n"
+    # aaa = sep.join(quest_option)
+    # print_to_txt(aaa, 'abc.txt')
+
     str_formated_csv = ""
+
 
     for j in range(0, len(quest_option)):
         try:
@@ -23,9 +28,10 @@ Nội dung câu hỏi|Answer A| Answer B|Answer C|Answer D"""
             str_formated_csv += quest_op + "\n"
         except:
             time.sleep(3)
-            j -= 1
+            j -= 1  
             continue
-        
+    
+    print_to_txt(str_formated_csv, 'abc.txt')
 
     # Xóa dòng trắng rồi ghi vào file txt
     str_reformat = reformat_form_csv(str_formated_csv)
